@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tentang DIAGA — Arsitektur, Etika, Sumber & Tim</title>
+  <meta name="description" content="Tentang proyek DIAGA: arsitektur teknis, etika AI, sumber data, keterbatasan, dan roadmap.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+  <div id="nav-container"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <main id="main-content">
+
+    <div class="page-hero">
+      <p style="color:var(--c-emerald);font-size:.72rem;letter-spacing:.4em;text-transform:uppercase;margin-bottom:.75rem;">Tentang Proyek</p>
+      <h1 class="page-hero-title">Tentang DIAGA</h1>
+      <p class="page-hero-sub">Arsitektur, etika, sumber data, keterbatasan yang kami akui, dan rencana ke depan.</p>
+    </div>
+
+    <section class="section" id="masalah" aria-labelledby="masalah-title">
+      <div class="section-inner" style="max-width:800px;">
+
+        <!-- Masalah -->
+        <div class="fade-up">
+          <h2 id="masalah-title" class="section-title" style="text-align:left;margin-bottom:1rem;">Masalah yang Kami Coba Selesaikan</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <p style="color:var(--c-text-muted);line-height:1.8;margin-bottom:1rem;">
+              Aksara Kaganga (Aksara Rejang) adalah sistem tulisan tradisional yang semakin jarang dipakai.
+              Tidak banyak sumber belajar digital yang mudah diakses, dan sumber yang ada sering tidak menyertakan
+              referensi yang bisa diverifikasi. Di sisi lain, Batik Kaganga — yang memakai aksara ini sebagai motif —
+              menghadapi tekanan dari produksi massal yang menggeser nilai batik tulis tradisional.
+            </p>
+            <p style="color:var(--c-text-muted);line-height:1.8;">
+              DIAGA mencoba menjadi pintu masuk digital: belajar aksara, tanya ke AI yang jujur tentang sumbernya,
+              dan berujung pada kunjungan nyata ke pengrajin.
+            </p>
+            <p style="color:var(--c-text-dim);font-size:.78rem;margin-top:1rem;font-style:italic;">
+              TODO: data kuantitatif (jumlah penutur, tren penggunaan) — perlu sumber akademis atau laporan pemerintah daerah.
+            </p>
+          </div>
+        </div>
+
+        <!-- Arsitektur -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Arsitektur Teknis</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <pre style="color:var(--c-text-muted);font-size:.78rem;line-height:1.8;overflow-x:auto;white-space:pre-wrap;">
+Klien (Browser)
+  ├── index.html / pages/*.html   — Halaman statis Vite MPA
+  ├── src/modules/converter.js    — Parser Latin → Aksara (pure JS, no network)
+  ├── src/modules/retrieval.js    — BM25 search atas knowledge.json (offline)
+  └── src/pages/*.js              — Logika tiap halaman
+
+Vercel (Server)
+  └── api/chat.js                 — Serverless Function
+        ├── Validasi input (maks 500 karakter, rate limit per IP)
+        ├── Retrieval BM25 dari knowledge.json
+        ├── Jika ada konteks → panggil AI (Anthropic / Gemini via adapter)
+        ├── Jika tidak ada konteks → balas "data tidak cukup"
+        └── Tidak menyimpan log percakapan
+
+Mode Offline:
+  Jika /api/chat tidak terjangkau, klien menjawab dari retrieval.js lokal
+  dengan badge "📴 Mode offline"
+            </pre>
+          </div>
+        </div>
+
+        <!-- Etika dan Keterbatasan -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Etika &amp; Keterbatasan</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:1rem;margin-bottom:.75rem;">Halusinasi AI</h3>
+            <p style="color:var(--c-text-muted);font-size:.88rem;line-height:1.7;margin-bottom:1.25rem;">
+              AI hanya menjawab dari konteks knowledge base lokal. Jika tidak ada konteks relevan, AI tidak dipanggil —
+              sistem langsung menjawab "data tidak cukup". Ini bukan jaminan zero-error, tapi mengurangi risiko halusinasi.
+            </p>
+
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:1rem;margin-bottom:.75rem;">Ejaan Aksara</h3>
+            <p style="color:var(--c-text-muted);font-size:.88rem;line-height:1.7;margin-bottom:1.25rem;">
+              Kaidah transliterasi yang kami implementasikan belum divalidasi oleh narasumber adat Rejang.
+              Hasil konverter perlu dikonfirmasi sebelum digunakan untuk keperluan resmi atau ritual.
+              Kami menandai vokal 'e' (U+A949) sebagai "perlu validasi: pepet vs taleng".
+            </p>
+
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:1rem;margin-bottom:.75rem;">Hak Budaya atas Motif</h3>
+            <p style="color:var(--c-text-muted);font-size:.88rem;line-height:1.7;margin-bottom:1.25rem;">
+              Motif Rafflesia dan Aksara Kaganga adalah warisan budaya Suku Rejang. Generator batik digital ini
+              dimaksudkan sebagai alat edukasi, bukan pengganti produk fisik dari pengrajin.
+              Kami mendorong pengguna untuk mendukung pengrajin langsung.
+            </p>
+
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:1rem;margin-bottom:.75rem;">Sumber Foto</h3>
+            <p style="color:var(--c-text-muted);font-size:.88rem;line-height:1.7;margin-bottom:1.25rem;">
+              Beberapa foto yang dipakai belum diketahui sumber dan lisensinya dengan pasti.
+              Keterangan foto dibuat netral dan sesuai isi visual. Foto bermasalah (watermark, wajah anak tanpa izin)
+              dikeluarkan dari build atau di-crop. Lihat <a href="#aset" style="color:var(--c-emerald);">tabel aset</a>.
+            </p>
+
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:1rem;margin-bottom:.75rem;">Privasi</h3>
+            <p style="color:var(--c-text-muted);font-size:.88rem;line-height:1.7;">
+              Pertanyaan yang kamu kirim ke Pemandu AI diteruskan ke penyedia AI (Anthropic / Gemini).
+              Kami tidak menyimpan log percakapan di server kami. Progres kuis tersimpan di localStorage perangkatmu.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tabel aset -->
+        <div class="fade-up" style="margin-top:3rem;" id="aset">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Status Aset Visual</h2>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--c-border);">
+                  <th style="text-align:left;padding:.6rem;color:var(--c-gold);">File</th>
+                  <th style="text-align:left;padding:.6rem;color:var(--c-gold);">Isi Visual</th>
+                  <th style="text-align:left;padding:.6rem;color:var(--c-gold);">Status</th>
+                </tr>
+              </thead>
+              <tbody style="color:var(--c-text-muted);">
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">model-batik.jpg</td>
+                  <td style="padding:.6rem;">Ilustrasi vektor Rafflesia</td>
+                  <td style="padding:.6rem;color:rgba(255,80,80,.8);">⛔ Watermark Shutterstock — dikeluarkan dari build</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">pola-aksara.jpg</td>
+                  <td style="padding:.6rem;">Ilustrasi motif aksara</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ TODO: sumber dan izin</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">kain-upacara.jpg</td>
+                  <td style="padding:.6rem;">Kain bermotif aksara (label pihak ketiga)</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ TODO: sumber dan izin</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">batik-emas.jpg</td>
+                  <td style="padding:.6rem;">Model pria berkemeja batik</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ TODO: sumber dan izin</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">kain-batik-asli.jpg</td>
+                  <td style="padding:.6rem;">Produk busana bermotif</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ TODO: sumber dan izin</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">kemeja-emas.jpg</td>
+                  <td style="padding:.6rem;">Gaun perempuan warna ungu</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ Keterangan tidak cocok — dikecualikan dari galeri</td>
+                </tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+                  <td style="padding:.6rem;">bagian-terakhir.jpg</td>
+                  <td style="padding:.6rem;">Foto bersama siswa di depan Arumbatik</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ Wajah anak di-crop — TODO: izin tertulis</td>
+                </tr>
+                <tr>
+                  <td style="padding:.6rem;">ambient.mp3</td>
+                  <td style="padding:.6rem;">Musik latar (8.5MB, 5:56)</td>
+                  <td style="padding:.6rem;color:rgba(255,200,50,.8);">⚠ TODO: kredit dan lisensi musik</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sumber -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Sumber Informasi</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <ul style="color:var(--c-text-muted);font-size:.88rem;line-height:2;list-style:none;">
+              <li>📄 <a href="https://www.unicode.org/charts/PDF/UA930.pdf" target="_blank" rel="noopener" style="color:var(--c-emerald);">Unicode Standard — Rejang Block (U+A930-A95F)</a> — terverifikasi</li>
+              <li>📄 <a href="https://en.wikipedia.org/wiki/Rejang_script" target="_blank" rel="noopener" style="color:var(--c-emerald);">Wikipedia: Rejang script</a> — belum divalidasi akademis</li>
+              <li>📄 <a href="https://curupkami.blogspot.com/2009/02/batik-kaganga.html" target="_blank" rel="noopener" style="color:var(--c-emerald);">Blog Curup Kami (2009) — Batik Kaganga</a> — belum terverifikasi</li>
+              <li style="color:var(--c-text-dim);">TODO: sumber akademis tentang Aksara Rejang dan Batik Kaganga</li>
+              <li style="color:var(--c-text-dim);">TODO: dokumentasi resmi dari pemerintah daerah Rejang Lebong</li>
+              <li style="color:var(--c-text-dim);">TODO: testimoni dan izin dari Arumbatik Roemah</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tim -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Tim</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <p style="color:var(--c-text-dim);font-size:.88rem;">TODO: nama anggota tim, institusi, peran masing-masing.</p>
+          </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Roadmap</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <ul style="color:var(--c-text-muted);font-size:.88rem;line-height:2;list-style:none;">
+              <li>✅ <strong>v0.1.0 (Penyisihan)</strong>: Konverter, Galeri, AI Berlandaskan Data, aset aman</li>
+              <li>⏳ Validasi ejaan aksara dengan narasumber adat</li>
+              <li>⏳ Integrasi foto asli dari Arumbatik Roemah (dengan izin)</li>
+              <li>⏳ Sumber sejarah yang lebih kuat (akademis / dokumen resmi)</li>
+              <li>⏳ Knowledge base diperluas dengan lebih banyak entri terverifikasi</li>
+              <li>⏳ Mode belajar offline lengkap (PWA)</li>
+              <li>⏳ Dukungan multi-dialek ejaan Rejang (bila tervalidasi)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Changelog -->
+        <div class="fade-up" style="margin-top:3rem;">
+          <h2 class="section-title" style="text-align:left;margin-bottom:1rem;">Changelog</h2>
+          <div class="glass" style="border-radius:16px;padding:1.75rem;">
+            <h3 style="color:var(--c-gold);font-family:var(--font-display);font-size:.95rem;margin-bottom:.5rem;">[0.1.0] — MVP Penyisihan (30 September 2026)</h3>
+            <ul style="color:var(--c-text-muted);font-size:.85rem;line-height:1.8;padding-left:1.2rem;">
+              <li>Migrasi dari single-page ke Vite MPA 6 halaman</li>
+              <li>Konverter Latin→Aksara dengan tanda vokal, coda, dan rincian per suku kata</li>
+              <li>Galeri 23 huruf dengan panel detail keyboard-accessible</li>
+              <li>Kuis adaptif sistem Leitner (3 mode)</li>
+              <li>Generator Batik Canvas (3 palet, download PNG)</li>
+              <li>Pemandu AI dengan retrieval lokal dan mode offline</li>
+              <li>Foto bermasalah dikeluarkan / keterangan diperbaiki</li>
+              <li>Aksesibilitas: skip link, landmark, aria-label, focus trap</li>
+              <li>Font self-hosted, tanpa CDN pihak ketiga</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script type="module" src="/src/pages/tentang.js"></script>
+</body>
+</html>
